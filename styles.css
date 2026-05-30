@@ -1036,6 +1036,42 @@ h1, h2, h3, h4 {
   text-align: center;
 }
 
+/* Form Success State */
+.form-success {
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-xl);
+  padding: var(--sp-10) var(--sp-8);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  animation: fadeUpIn 0.5s var(--ease) forwards;
+}
+.form-success__icon {
+  font-size: 3rem;
+  margin-bottom: var(--sp-2);
+}
+.form-success__title {
+  font-size: 1.5rem;
+  color: var(--text-100);
+  font-family: var(--font-sans);
+  font-weight: 700;
+}
+.form-success__text {
+  font-size: 1rem;
+  color: var(--text-200);
+  max-width: 340px;
+  line-height: 1.6;
+  margin-bottom: var(--sp-4);
+}
+
+@keyframes fadeUpIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* =============================================================
    Footer
 ============================================================= */
