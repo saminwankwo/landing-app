@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initMobileMenu();
   initFormHandling();
+  initCalendly();
 });
 
 /**
@@ -138,4 +139,26 @@ function initFormHandling() {
       form.style.display = 'flex';
     });
   }
+}
+
+/**
+ * Calendly Popup Widget
+ * Triggers the Calendly popup when elements with .calendly-trigger are clicked
+ */
+function initCalendly() {
+  const triggers = document.querySelectorAll('.calendly-trigger');
+  
+  triggers.forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.Calendly) {
+        Calendly.initPopupWidget({
+          url: 'https://calendly.com/nwankwosami/30min'
+        });
+      } else {
+        // Fallback if script hasn't loaded
+        window.open('https://calendly.com/nwankwosami/30min', '_blank');
+      }
+    });
+  });
 }

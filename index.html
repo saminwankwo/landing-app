@@ -13,8 +13,47 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Calendly link widget CSS -->
+  <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+  <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+
+  <!-- ============================================================
+       TRACKING & ANALYTICS (Placeholders)
+       Replace 'GTM-XXXXXXX', 'G-XXXXXXX', and 'PIXEL_ID' with your actual IDs
+  ============================================================ -->
+  
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXX');
+  </script>
+
+  <!-- TikTok Pixel -->
+  <script>
+  !function (w, d, t) {
+    w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].apply(t,arguments))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n;var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+    ttq.load('PIXEL_ID');
+    ttq.page();
+  }(window, document, 'ttq');
+  </script>
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
   <!-- ============================================================
        NAVIGATION
@@ -34,7 +73,7 @@
         <a href="#services"  class="nav__link">Services</a>
         <a href="#process"   class="nav__link">Process</a>
         <a href="#about"     class="nav__link">About</a>
-        <a href="#contact"   class="nav__link nav__link--cta">Book a Call</a>
+        <a href="#" class="nav__link nav__link--cta calendly-trigger">Book a Call</a>
       </nav>
     </div>
   </header>
@@ -55,7 +94,7 @@
           business platforms, and complex systems.
         </p>
         <div class="hero__actions">
-          <a href="https://calendly.com/nwankwosami/30min" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+          <a href="#" class="btn btn--primary calendly-trigger">
             📅 Book a Free Consultation
           </a>
           <a href="#projects" class="btn btn--ghost">View My Work →</a>
@@ -134,6 +173,10 @@
             class="project-showcase__img"
             loading="lazy"
           />
+          <div class="project-showcase__play-btn">
+            <span class="play-icon">▶</span>
+            <span class="play-text">Watch 30s Demo</span>
+          </div>
           <div class="project-showcase__overlay">
             <div class="tech-stack">
               <span class="tech-tag">Node.js</span>
@@ -168,6 +211,9 @@
             <div class="breakdown-card__icon">🏆</div>
             <h3>Outcome</h3>
             <p>A highly interactive platform capable of managing tens of thousands of family records while maintaining sub-200ms response times and an intuitive, accessible UX.</p>
+          </div>
+          <div class="fade-up" style="margin-top: var(--sp-4);">
+            <a href="case-studies/family-tree-platform.html" class="btn btn--ghost btn--full">Read Full Case Study →</a>
           </div>
         </div>
       </div>
@@ -337,7 +383,7 @@
           <p class="section-eyebrow">Why Choose Me</p>
           <h2 class="section-title">More Than Just Code</h2>
           <p class="why-me__desc">Most developers ship features. I ship outcomes. Every line of code is written with your business goals in mind — not just the spec sheet.</p>
-          <a href="https://calendly.com/nwankwosami/30min" class="btn btn--primary" target="_blank" rel="noopener noreferrer">Let's Talk →</a>
+          <a href="#" class="btn btn--primary calendly-trigger">Let's Talk →</a>
         </div>
         <div class="why-me__right">
           <div class="value-card fade-up" style="--delay:0s">
@@ -510,7 +556,7 @@
         <p class="section-eyebrow" style="color:rgba(255,255,255,0.6)">Ready to build?</p>
         <h2 class="cta-banner__title">Have an Idea You Want to Build?</h2>
         <p class="cta-banner__subtitle">Let's discuss your project and see how software can help your business grow.</p>
-        <a href="https://calendly.com/nwankwosami/30min" class="btn btn--primary btn--lg" target="_blank" rel="noopener noreferrer">
+        <a href="#" class="btn btn--primary btn--lg calendly-trigger">
           📅 Schedule a Free Consultation
         </a>
       </div>
@@ -527,7 +573,7 @@
           <p class="section-eyebrow">Get In Touch</p>
           <h2 class="section-title">Let's Build Something Great</h2>
           <p class="contact__desc">Fill in the form and I'll get back to you within 24 hours. Or if you'd prefer, book a call directly on Calendly.</p>
-          <a href="https://calendly.com/nwankwosami/30min" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">📅 Book on Calendly</a>
+          <a href="#" class="btn btn--ghost calendly-trigger">📅 Book on Calendly</a>
           <div class="contact__links">
             <a href="mailto:nwankwosami@gmail.com" class="contact__link">✉️ nwankwosami@gmail.com</a>
             <a href="https://saminwankwo-github-io.vercel.app/" class="contact__link" target="_blank" rel="noopener noreferrer">🌐 Website</a>
