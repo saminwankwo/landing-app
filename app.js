@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initFormHandling();
   initCalendly();
+  
+  // Track Page View for TikTok
+  trackTikTokEvent('ViewContent', {
+    content_name: document.title,
+    content_type: 'product'
+  });
 });
 
 /**
@@ -97,6 +103,7 @@ function initFormHandling() {
     }
 
     const formData = new FormData(form);
+    const email = formData.get('email');
     
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -104,6 +111,16 @@ function initFormHandling() {
     }
 
     try {
+      // Identify user for TikTok before tracking Lead
+      if (email) {
+        const hashedEmail = await hashString(email.trim().toLowerCase());
+        if (window.ttq) {
+          ttq.identify({
+            "email": hashedEmail
+          });
+        }
+      }
+
       const response = await fetch(form.action, {
         method: 'POST',
         body: formData,
@@ -113,6 +130,13 @@ function initFormHandling() {
       });
 
       if (response.ok) {
+        // Track successful Lead for TikTok
+        trackTikTokEvent('Lead', {
+          content_name: 'Contact Form Submission',
+          value: 0,
+          currency: 'USD'
+        });
+
         // Hide form and show success message
         form.style.display = 'none';
         successMessage.style.display = 'flex';
@@ -151,6 +175,12 @@ function initCalendly() {
   triggers.forEach(trigger => {
     trigger.addEventListener('click', (e) => {
       e.preventDefault();
+      
+      // Track ClickButton for TikTok
+      trackTikTokEvent('ClickButton', {
+        content_name: 'Calendly Booking Click'
+      });
+
       if (window.Calendly) {
         Calendly.initPopupWidget({
           url: 'https://calendly.com/nwankwosami/30min'
@@ -161,4 +191,38 @@ function initCalendly() {
       }
     });
   });
+}
+
+/**
+ * TikTok Event Tracking Helper
+ * @param {string} eventName - The TikTok event name
+ * @param {Object} properties - Event properties
+ */
+function trackTikTokEvent(eventName, properties = {}) {
+  if (window.ttq) {
+    ttq.track(eventName, {
+      "contents": [
+        {
+          "content_id": properties.content_id || 'landing_page',
+          "content_type": properties.content_type || 'product',
+          "content_name": properties.content_name || 'Samuel Nwankwo Portfolio'
+        }
+      ],
+      "value": properties.value || 0,
+      "currency": properties.currency || 'USD'
+    });
+  }
+}
+
+/**
+ * SHA-256 Hashing Utility
+ * @param {string} string - The string to hash
+ * @returns {Promise<string>} - The hashed string
+ */
+async function hashString(string) {
+  const msgUint8 = new TextEncoder().encode(string);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
 }
