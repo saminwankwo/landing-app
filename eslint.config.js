@@ -10,7 +10,7 @@ export default defineConfig([
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
+      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
     ],
     languageOptions: {
@@ -22,6 +22,8 @@ export default defineConfig([
         sourceType: 'module',
       },
     },
-    rules: {},
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z]' }],
+    },
   },
 ])

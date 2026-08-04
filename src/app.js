@@ -115,7 +115,7 @@ function initFormHandling() {
       if (email) {
         const hashedEmail = await hashString(email.trim().toLowerCase());
         if (window.ttq) {
-          ttq.identify({
+          window.ttq.identify({
             "email": hashedEmail
           });
         }
@@ -182,7 +182,7 @@ function initCalendly() {
       });
 
       if (window.Calendly) {
-        Calendly.initPopupWidget({
+        window.Calendly.initPopupWidget({
           url: 'https://calendly.com/nwankwosami/30min'
         });
       } else {
@@ -200,7 +200,7 @@ function initCalendly() {
  */
 function trackTikTokEvent(eventName, properties = {}) {
   if (window.ttq) {
-    ttq.track(eventName, {
+    window.ttq.track(eventName, {
       "contents": [
         {
           "content_id": properties.content_id || 'landing_page',
