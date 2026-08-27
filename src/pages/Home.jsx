@@ -686,7 +686,7 @@ function Home() {
               <a href="#" className="btn btn--ghost calendly-trigger" onClick={handleCalendlyClick}>📅 Book on Calendly</a>
               <div className="contact__links">
                 <a href="mailto:nwankwosami@gmail.com" className="contact__link">✉️ nwankwosami@gmail.com</a>
-                <a href="https://saminwankwo.dev/" className="contact__link" target="_blank" rel="noopener noreferrer">🌐 Website</a>
+                <a href="https://saminwankwo-github-io.vercel.app/" className="contact__link" target="_blank" rel="noopener noreferrer">🌐 Website</a>
                 <a href="https://linkedin.com/in/saminwankwo" className="contact__link" target="_blank" rel="noopener noreferrer">💼 LinkedIn</a>
                 <a href="https://tiktok.com/@saminwankwo" className="contact__link" target="_blank" rel="noopener noreferrer">📱 TikTok</a>
                 <a href="https://linktr.ee/saminwankwo" className="contact__link" target="_blank" rel="noopener noreferrer">🔗 Linktree</a>
