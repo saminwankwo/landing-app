@@ -191,7 +191,7 @@ function Home() {
 
   return (
     <div ref={pageRootRef}>
-      <header className="nav" id="top">
+      <header className={`nav ${mobileMenuOpen ? 'nav--mobile-open' : ''}`} id="top">
         <div className="nav__inner">
           <a href="#top" className="nav__logo" aria-label="Samuel Nwankwo home">
             <span className="nav__logo-icon">SN</span>
@@ -527,7 +527,7 @@ function Home() {
               Fixed-scope packages designed for predictable timelines, clear budgets, and high business ROI.
             </p>
           </div>
-          <div className="packages__grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--sp-6)' }}>
+          <div className="packages__grid">
             <div className="package-card fade-up" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'flex', flexDirection: 'column' }}>
               <div className="package-card__badge" style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', marginBottom: 'var(--sp-2)' }}>RAPID SHIP</div>
               <h3 style={{ fontSize: '1.4rem', marginBottom: 'var(--sp-2)' }}>MVP & Prototype</h3>
@@ -995,7 +995,7 @@ function Home() {
 
       <section className="section lead-magnet fade-up" style={{ paddingBottom: '0' }}>
         <div className="container">
-          <div style={{ background: 'linear-gradient(135deg, var(--bg-card), var(--bg-raised))', border: '1px solid var(--border-accent)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--sp-8)', alignItems: 'center' }}>
+          <div className="lead-magnet__card">
             <div>
               <span style={{ background: 'hsla(172, 65%, 48%, 0.15)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase' }}>Free Founder Resource</span>
               <h3 style={{ fontSize: '1.6rem', marginTop: 'var(--sp-3)', marginBottom: 'var(--sp-2)' }}>10 Costly Architecture Mistakes Founders Make</h3>
