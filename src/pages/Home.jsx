@@ -254,26 +254,51 @@ function Home() {
           <div className="hero__content fade-up">
             <div className="hero__badge">🚀 Available for New Projects</div>
             <h1 className="hero__title">
-              I Build Custom Software That Solves
-              <span className="text-gradient"> Real Business Problems</span>
+              Turn Your App Idea Into a
+              <span className="text-gradient"> Scalable SaaS Platform</span>
             </h1>
             <p className="hero__subtitle">
-              Full-Stack Developer specializing in scalable web applications,
-              APIs, business platforms, and complex systems.
+              Full-Stack Engineering & Backend Architecture — Built Fast, Scaled Securely. Specializing in Web Applications, APIs, and Custom Systems.
             </p>
             <div className="hero__actions">
+              <a
+                href="https://wa.me/+2349020927884?text=Hi%20Samuel%20%E2%80%94%20I'm%20interested%20in%20discussing%20a%20project."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn"
+                style={{
+                  background: 'linear-gradient(135deg, #25D366, #128C7E)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: '600',
+                  boxShadow: '0 4px 20px rgba(37, 211, 102, 0.25)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--sp-2)',
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.705 1.754zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                </svg>
+                Chat on WhatsApp
+              </a>
               <a
                 href={calendlyUrl}
                 className="btn btn--primary calendly-trigger"
                 onClick={handleCalendlyClick}
               >
-                📅 Book a Free Consultation
+                📅 Book Free Call
               </a>
               <a href="#projects" className="btn btn--ghost">
-                View My Work →
+                View Work →
               </a>
             </div>
-            <ul className="hero__pills" aria-label="Expertise areas">
+            <div className="hero__guarantees" style={{ marginTop: 'var(--sp-4)', display: 'flex', gap: 'var(--sp-4)', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--text-200)' }}>
+              <span>🔒 <strong>100% Code Ownership</strong></span>
+              <span>⏱️ <strong>Milestone Payments</strong></span>
+              <span>🛡️ <strong>30-Day Support Guarantee</strong></span>
+            </div>
+            <ul className="hero__pills" aria-label="Expertise areas" style={{ marginTop: 'var(--sp-5)' }}>
               <li className="pill">6+ Years Experience</li>
               <li className="pill">Full-Stack Development</li>
               <li className="pill">Backend Architecture</li>
@@ -489,6 +514,65 @@ function Home() {
                 <li>Performance audits</li>
               </ul>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section packages">
+        <div className="container">
+          <div className="section-header fade-up">
+            <p className="section-eyebrow">Investment & Packages</p>
+            <h2 className="section-title">Transparent Engagement Options</h2>
+            <p className="section-desc">
+              Fixed-scope packages designed for predictable timelines, clear budgets, and high business ROI.
+            </p>
+          </div>
+          <div className="packages__grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--sp-6)' }}>
+            <div className="package-card fade-up" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'flex', flexDirection: 'column' }}>
+              <div className="package-card__badge" style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', marginBottom: 'var(--sp-2)' }}>RAPID SHIP</div>
+              <h3 style={{ fontSize: '1.4rem', marginBottom: 'var(--sp-2)' }}>MVP & Prototype</h3>
+              <p style={{ color: 'var(--text-200)', fontSize: '0.92rem', marginBottom: 'var(--sp-4)' }}>Turn your product idea into a working, investor-ready web app in 3–4 weeks.</p>
+              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-100)', marginBottom: 'var(--sp-6)' }}>From $1,000 <span style={{ fontSize: '0.9rem', fontWeight: '400', color: 'var(--text-300)' }}>/ project</span></div>
+              <ul className="check-list" style={{ marginBottom: 'var(--sp-6)', flex: 1 }}>
+                <li>Core feature implementation</li>
+                <li>Responsive React UI</li>
+                <li>Node.js / Laravel backend API</li>
+                <li>Database setup & authentication</li>
+                <li>Production hosting deployment</li>
+              </ul>
+              <a href={calendlyUrl} className="btn btn--ghost btn--full calendly-trigger" onClick={handleCalendlyClick}>Book Discovery Call</a>
+            </div>
+
+            <div className="package-card package-card--featured fade-up" style={{ background: 'var(--bg-card)', border: '2px solid var(--primary)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+              <div className="package-card__popular" style={{ position: 'absolute', top: '-14px', right: '24px', background: 'var(--primary)', color: '#0d111a', fontWeight: '700', fontSize: '0.75rem', padding: '4px 12px', borderRadius: '12px', textTransform: 'uppercase' }}>Most Popular</div>
+              <div className="package-card__badge" style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', marginBottom: 'var(--sp-2)' }}>SCALABLE PLATFORM</div>
+              <h3 style={{ fontSize: '1.4rem', marginBottom: 'var(--sp-2)' }}>Full SaaS & Application</h3>
+              <p style={{ color: 'var(--text-200)', fontSize: '0.92rem', marginBottom: 'var(--sp-4)' }}>Complete end-to-end custom application with complex workflows, roles & billing.</p>
+              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-100)', marginBottom: 'var(--sp-6)' }}>From $2,500 <span style={{ fontSize: '0.9rem', fontWeight: '400', color: 'var(--text-300)' }}>/ project</span></div>
+              <ul className="check-list" style={{ marginBottom: 'var(--sp-6)', flex: 1 }}>
+                <li>Everything in MVP package</li>
+                <li>Multi-role access control & permissions</li>
+                <li>Payment gateway integration</li>
+                <li>Automated analytics & reporting dashboard</li>
+                <li>30-day post-launch warranty & support</li>
+              </ul>
+              <a href={calendlyUrl} className="btn btn--primary btn--full calendly-trigger" onClick={handleCalendlyClick}>Start Project Consultation</a>
+            </div>
+
+            <div className="package-card fade-up" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'flex', flexDirection: 'column' }}>
+              <div className="package-card__badge" style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', marginBottom: 'var(--sp-2)' }}>ENTERPRISE & BACKEND</div>
+              <h3 style={{ fontSize: '1.4rem', marginBottom: 'var(--sp-2)' }}>API & Architecture Refactoring</h3>
+              <p style={{ color: 'var(--text-200)', fontSize: '0.92rem', marginBottom: 'var(--sp-4)' }}>Optimize slow databases, fix system bottlenecks, or build secure REST APIs.</p>
+              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-100)', marginBottom: 'var(--sp-6)' }}>Custom Scope <span style={{ fontSize: '0.9rem', fontWeight: '400', color: 'var(--text-300)' }}>/ retainer</span></div>
+              <ul className="check-list" style={{ marginBottom: 'var(--sp-6)', flex: 1 }}>
+                <li>Backend performance audit</li>
+                <li>RESTful API design & integration</li>
+                <li>Database indexing & query optimization</li>
+                <li>CI/CD pipeline & automated tests</li>
+                <li>Ongoing technical advisory</li>
+              </ul>
+              <a href="https://wa.me/+2349020927884?text=Hi%20Samuel%20%E2%80%94%20I'm%20interested%20in%20custom%20API%2Farchitecture%20services." target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--full">Discuss Requirements</a>
+            </div>
           </div>
         </div>
       </section>
@@ -905,6 +989,32 @@ function Home() {
             >
               📅 Schedule a Free Consultation
             </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="section lead-magnet fade-up" style={{ paddingBottom: '0' }}>
+        <div className="container">
+          <div style={{ background: 'linear-gradient(135deg, var(--bg-card), var(--bg-raised))', border: '1px solid var(--border-accent)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--sp-8)', alignItems: 'center' }}>
+            <div>
+              <span style={{ background: 'hsla(172, 65%, 48%, 0.15)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase' }}>Free Founder Resource</span>
+              <h3 style={{ fontSize: '1.6rem', marginTop: 'var(--sp-3)', marginBottom: 'var(--sp-2)' }}>10 Costly Architecture Mistakes Founders Make</h3>
+              <p style={{ color: 'var(--text-200)', fontSize: '0.95rem' }}>
+                Planning a web application or SaaS? Avoid the technical traps that waste budget and slow down launch timelines.
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)' }}>
+              <a
+                href="https://wa.me/+2349020927884?text=Hi%20Samuel%20%E2%80%94%20Please%20send%20me%20the%20Free%20Founder%20Architecture%20Guide."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn--primary btn--lg"
+                style={{ justifyContent: 'center' }}
+              >
+                📥 Get Free Guide via WhatsApp
+              </a>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-300)', textAlign: 'center' }}>Instant PDF delivery · No spam</p>
+            </div>
           </div>
         </div>
       </section>
