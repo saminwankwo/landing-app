@@ -58,8 +58,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
 
     <link rel="preconnect" href="https://assets.calendly.com" />
+    <link rel="preconnect" href="https://analytics.tiktok.com" />
     <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet" />
     <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+
+    <!-- TikTok Pixel Base Code — static in HTML so TikTok's crawler detects it without JS execution.
+         Duplicates `src/utils/consent.js` logic but guarded by window.__sn_tt_injected to avoid double-load.
+         Uses holdConsent until user clicks Accept All (GDPR compliant but verifiable). -->
+    <script>
+      (function (w, d, t) {
+        if (w.__sn_tt_injected) return;
+        // Only install stub here; actual ID comes from Vite env via main.jsx if different.
+        // Hardcoded fallback ensures crawler sees D8F0N1RC77UFK9KDTFB0 even if env missing at build.
+        var PIXEL_ID = 'D8F0N1RC77UFK9KDTFB0';
+        w.TiktokAnalyticsObject = t;
+        var ttq = (w[t] = w[t] || []);
+        ttq.methods = ['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie','holdConsent','revokeConsent','grantConsent'];
+        ttq.setAndDefer = function (t, e) { t[e] = function () { t.push([e].concat([].slice.call(arguments, 0))); }; };
+        for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
+        ttq.instance = function (t) { for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]); return e; };
+        ttq.load = function (e, n) {
+          var r = 'https://analytics.tiktok.com/i18n/pixel/events.js';
+          ttq._i = ttq._i || {}; ttq._i[e] = []; ttq._i[e]._u = r; ttq._t = ttq._t || {}; ttq._t[e] = +new Date(); ttq._o = ttq._o || {}; ttq._o[e] = n || {};
+          n = d.createElement('script'); n.type = 'text/javascript'; n.async = !0; n.src = r + '?sdkid=' + e + '&lib=' + t;
+          e = d.getElementsByTagName('script')[0]; e.parentNode.insertBefore(n, e);
+        };
+        // Try to read consent from localStorage synchronously
+        var consent = null;
+        try { var raw = localStorage.getItem('sn_cookie_consent_v1'); consent = raw ? JSON.parse(raw).value : null; } catch (e) {}
+        w.__sn_tt_injected = true;
+        ttq.load(PIXEL_ID);
+        try {
+          if (consent === 'accepted') ttq.grantConsent();
+          else if (consent === 'declined') ttq.revokeConsent();
+          else if (ttq.holdConsent) ttq.holdConsent();
+        } catch (e) {}
+        ttq.page();
+      })(window, document, 'ttq');
+    </script>
   </head>
   <body>
     <div id="root"></div>
