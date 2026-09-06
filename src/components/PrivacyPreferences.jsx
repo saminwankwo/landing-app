@@ -43,48 +43,49 @@ export default function PrivacyPreferences() {
         right: 0,
         bottom: 0,
         zIndex: 9998,
-        padding: '1rem',
+        padding: '0.75rem',
         display: 'flex',
         justifyContent: 'center',
         pointerEvents: 'none',
       }}
     >
       <div
+        className="privacy-banner"
         style={{
           pointerEvents: 'auto',
-          maxWidth: 'min(960px, calc(100vw - 2rem))',
+          maxWidth: 'min(960px, calc(100vw - 1.5rem))',
           width: '100%',
           background: 'var(--bg-card, hsl(222, 16%, 14%))',
           color: 'var(--text-100, hsl(210, 20%, 96%))',
           border: '1px solid var(--border-accent, hsla(172, 60%, 50%, 0.3))',
           borderRadius: 'var(--radius-lg, 20px)',
-          padding: '1.25rem 1.5rem',
+          padding: '1rem 1.25rem',
           boxShadow: '0 24px 80px hsla(0,0%,0%,0.45)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem',
+          gap: '0.75rem',
         }}
       >
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-          <div aria-hidden="true" style={{ fontSize: '1.5rem', lineHeight: 1 }}>
+          <div aria-hidden="true" style={{ fontSize: '1.25rem', lineHeight: 1 }}>
             🔒
           </div>
           <div>
             <p
               style={{
                 fontWeight: 700,
-                marginBottom: '0.35rem',
+                marginBottom: '0.25rem',
                 fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
-                fontSize: '0.98rem',
+                fontSize: '0.92rem',
               }}
             >
               We value your privacy
             </p>
             <p
               style={{
-                fontSize: '0.88rem',
+                fontSize: '0.82rem',
                 color: 'var(--text-200, hsl(210, 15%, 75%))',
-                lineHeight: 1.6,
+                lineHeight: 1.5,
                 margin: 0,
               }}
             >
@@ -98,7 +99,7 @@ export default function PrivacyPreferences() {
         <div
           style={{
             display: 'flex',
-            gap: '0.75rem',
+            gap: '0.5rem',
             flexWrap: 'wrap',
             justifyContent: 'flex-end',
           }}
@@ -107,6 +108,7 @@ export default function PrivacyPreferences() {
             type="button"
             onClick={decline}
             className="btn btn--ghost"
+            style={{ fontSize: '0.85rem', padding: 'var(--sp-2) var(--sp-4)', flex: '1 1 auto' }}
             aria-label="Allow only necessary storage"
           >
             Only Necessary
@@ -115,6 +117,7 @@ export default function PrivacyPreferences() {
             type="button"
             onClick={accept}
             className="btn btn--primary"
+            style={{ fontSize: '0.85rem', padding: 'var(--sp-2) var(--sp-4)', flex: '1 1 auto' }}
             autoFocus
             aria-label="Allow analytics and advertising storage"
           >

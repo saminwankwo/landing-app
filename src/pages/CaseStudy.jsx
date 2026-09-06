@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { setSeo } from '../seo'
 import { getCalendlyUrl } from '../utils/tracking'
@@ -22,6 +22,22 @@ function handleCalendlyClick(e) {
 
 function CaseStudy() {
   const pageRootRef = useRef(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen((prev) => {
+      const next = !prev
+      document.body.style.overflow = next ? 'hidden' : ''
+      return next
+    })
+  }
+
+  const closeMobileMenu = () => {
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false)
+      document.body.style.overflow = ''
+    }
+  }
 
   useEffect(() => {
     setSeo({
@@ -75,20 +91,43 @@ function CaseStudy() {
 
   return (
     <div ref={pageRootRef}>
-      <header className="nav">
+      <header className={`nav ${mobileMenuOpen ? 'nav--mobile-open' : ''}`}>
         <div className="nav__inner">
-          <Link to="/" className="nav__logo">
+          <Link to="/" className="nav__logo" onClick={closeMobileMenu}>
             <span className="nav__logo-icon">SN</span>
             <span>Samuel Nwankwo</span>
           </Link>
-          <nav className="nav__menu">
-            <Link to="/#projects" className="nav__link">
-              Back to Projects
+          <button
+            className={`nav__burger ${mobileMenuOpen ? 'open' : ''}`}
+            aria-label="Toggle navigation"
+            aria-expanded={mobileMenuOpen}
+            onClick={toggleMobileMenu}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <nav
+            className={`nav__menu ${mobileMenuOpen ? 'mobile-open' : ''}`}
+            aria-label="Main navigation"
+          >
+            <Link to="/" className="nav__link" onClick={closeMobileMenu}>
+              Home
+            </Link>
+            <Link
+              to="/#projects"
+              className="nav__link"
+              onClick={closeMobileMenu}
+            >
+              Projects
             </Link>
             <a
               href={getCalendlyUrl()}
               className="nav__link nav__link--cta calendly-trigger"
-              onClick={handleCalendlyClick}
+              onClick={(e) => {
+                closeMobileMenu()
+                handleCalendlyClick(e)
+              }}
             >
               Book a Call
             </a>
