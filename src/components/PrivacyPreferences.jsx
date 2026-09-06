@@ -13,8 +13,10 @@ export default function PrivacyPreferences() {
 
   useEffect(() => {
     const existing = getStoredConsent()
-    if (existing?.value === 'accepted') {
-      applyConsent('accepted')
+    // Pixel is now loaded unconditionally in index.html + main.jsx with holdConsent,
+    // but we still need to upgrade to granted/revoked if user already made a choice.
+    if (existing?.value === 'accepted' || existing?.value === 'declined') {
+      applyConsent(existing.value)
     }
   }, [])
 

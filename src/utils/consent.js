@@ -146,12 +146,42 @@ export function injectTikTokPixel(pixelId) {
         e.parentNode.insertBefore(n, e)
       }
       ttq.load(pixelId)
-      ttq.grantConsent()
+      // Consent-aware: if user already accepted, grant immediately;
+      // otherwise holdConsent so pixel is detectable but doesn't set cookies until grant
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        const parsed = raw ? JSON.parse(raw) : null
+        if (parsed?.value === 'accepted') {
+          ttq.grantConsent()
+        } else if (parsed?.value === 'declined') {
+          ttq.revokeConsent()
+        } else {
+          // No choice yet — hold consent. Pixel still loads and is detectable by TikTok
+          // but won't set marketing cookies until user accepts. This fixes
+          // "We can't detect pixel base code" while staying GDPR compliant.
+          if (ttq.holdConsent) ttq.holdConsent()
+        }
+      } catch {
+        if (ttq.holdConsent) ttq.holdConsent()
+      }
       ttq.page()
     })(window, document, 'ttq')
   } catch {
     /* noop */
   }
+}
+
+export function grantTikTokConsent() {
+  try {
+    if (window?.ttq?.grantConsent) window.ttq.grantConsent()
+  } catch {
+    /* noop */
+  }
+}
+
+export function ensureTikTokPixelLoaded() {
+  const pixelId = import.meta.env.VITE_TIKTOK_PIXEL_ID
+  if (pixelId) injectTikTokPixel(pixelId)
 }
 
 export function injectMicrosoftClarity(projectId) {
@@ -201,14 +231,21 @@ export function applyConsent(consentValue) {
   const env = import.meta.env
 
   if (consentValue === 'accepted') {
+    // Ensure TikTok pixel exists (it should already be loaded on page load via ensureTikTokPixelLoaded)
+    // then grant consent so it can fire
+    if (env.VITE_TIKTOK_PIXEL_ID) {
+      injectTikTokPixel(env.VITE_TIKTOK_PIXEL_ID)
+      grantTikTokConsent()
+    }
     if (env.VITE_GTM_ID) injectGoogleTagManager(env.VITE_GTM_ID)
     if (env.VITE_GA4_ID || env.VITE_GOOGLE_ADS_ID) {
       injectGoogleAnalytics(env.VITE_GA4_ID, env.VITE_GOOGLE_ADS_ID)
     }
-    if (env.VITE_TIKTOK_PIXEL_ID) injectTikTokPixel(env.VITE_TIKTOK_PIXEL_ID)
     if (env.VITE_CLARITY_PROJECT_ID)
       injectMicrosoftClarity(env.VITE_CLARITY_PROJECT_ID)
   } else if (consentValue === 'declined') {
+    // If TikTok pixel was already loaded (via initial page load), revoke it
+    ensureTikTokPixelLoaded()
     revokeAllTrackingConsent()
   }
 }
