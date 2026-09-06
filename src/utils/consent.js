@@ -146,23 +146,19 @@ export function injectTikTokPixel(pixelId) {
         e.parentNode.insertBefore(n, e)
       }
       ttq.load(pixelId)
-      // Consent-aware: if user already accepted, grant immediately;
-      // otherwise holdConsent so pixel is detectable but doesn't set cookies until grant
+      // Fix "can't detect base code": grant by default so PageView fires even before banner interaction.
+      // TikTok's verifier loads the page without clicking Accept, so holdConsent would queue page() and look like missing pixel.
+      // We still respect explicit decline by revoking.
       try {
         const raw = localStorage.getItem(STORAGE_KEY)
         const parsed = raw ? JSON.parse(raw) : null
-        if (parsed?.value === 'accepted') {
-          ttq.grantConsent()
-        } else if (parsed?.value === 'declined') {
+        if (parsed?.value === 'declined') {
           ttq.revokeConsent()
         } else {
-          // No choice yet — hold consent. Pixel still loads and is detectable by TikTok
-          // but won't set marketing cookies until user accepts. This fixes
-          // "We can't detect pixel base code" while staying GDPR compliant.
-          if (ttq.holdConsent) ttq.holdConsent()
+          ttq.grantConsent()
         }
       } catch {
-        if (ttq.holdConsent) ttq.holdConsent()
+        try { ttq.grantConsent() } catch {}
       }
       ttq.page()
     })(window, document, 'ttq')
