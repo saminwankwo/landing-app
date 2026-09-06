@@ -93,6 +93,8 @@
     </script>
     <!-- TikTok Pixel helper literal for scanners that regex search for sdkid param -->
     <!-- tiktok-pixel-id: D8F0N1RC77UFK9KDTFB0 | sdkid=D8F0N1RC77UFK9KDTFB0 -->
+    <!-- Direct script tag with literal sdkid for ultra-strict scanners (redundant with ttq.load above, but makes base code 100% detectable even without JS execution) -->
+    <script async src="https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=D8F0N1RC77UFK9KDTFB0&lib=ttq"></script>
   </head>
   <body>
     <div id="root"></div>
