@@ -1,8 +1,43 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
+import fsSync from 'node:fs'
+
 const projectRoot = process.cwd()
 const publicDir = path.join(projectRoot, 'public')
+
+function loadEnvFiles() {
+  const envFiles = ['.env.production.local', '.env.production', '.env.local', '.env']
+  for (const file of envFiles) {
+    const filePath = path.join(projectRoot, file)
+    if (fsSync.existsSync(filePath)) {
+      try {
+        const content = fsSync.readFileSync(filePath, 'utf8')
+        for (const line of content.split('\n')) {
+          const trimmed = line.trim()
+          if (!trimmed || trimmed.startsWith('#')) continue
+          const equalsIdx = trimmed.indexOf('=')
+          if (equalsIdx > 0) {
+            const key = trimmed.slice(0, equalsIdx).trim()
+            let val = trimmed.slice(equalsIdx + 1).trim()
+            if (
+              (val.startsWith('"') && val.endsWith('"')) ||
+              (val.startsWith("'") && val.endsWith("'"))
+            ) {
+              val = val.slice(1, -1)
+            }
+            if (!process.env[key]) {
+              process.env[key] = val
+            }
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+loadEnvFiles()
 
 function normalizeBaseUrl(input) {
   if (!input) return ''
@@ -112,3 +147,76 @@ console.log(
     baseUrl ? ` with base ${baseUrl}` : ''
   }`,
 )
+
+const distDir = path.join(projectRoot, 'dist')
+if (fsSync.existsSync(distDir)) {
+  await fs.writeFile(path.join(distDir, 'sitemap.xml'), sitemapXml, 'utf8')
+  await fs.writeFile(path.join(distDir, 'robots.txt'), robotsTxt, 'utf8')
+  if (adsensePublisherId) {
+    const publisherValue = adsensePublisherId.startsWith('pub-')
+      ? adsensePublisherId
+      : `pub-${adsensePublisherId}`
+    const adsTxt = [`google.com, ${publisherValue}, DIRECT, f08c47fec0942fa0`, ''].join('\n')
+    await fs.writeFile(path.join(distDir, 'ads.txt'), adsTxt, 'utf8')
+  }
+
+  const distIndex = path.join(distDir, 'index.html')
+  if (fsSync.existsSync(distIndex)) {
+    const htmlTemplate = await fs.readFile(distIndex, 'utf8')
+
+    // Generate static route html for case study
+    const caseStudyDir = path.join(distDir, 'case-studies', 'family-tree-platform')
+    await fs.mkdir(caseStudyDir, { recursive: true })
+
+    const canonicalUrl = baseUrl
+      ? `${baseUrl}/case-studies/family-tree-platform`
+      : '/case-studies/family-tree-platform'
+    const imageUrl = baseUrl ? `${baseUrl}/familytree.png` : '/familytree.png'
+
+    let caseStudyHtml = htmlTemplate
+      .replace(
+        /<title>.*?<\/title>/,
+        '<title>Private Genealogy Web App Case Study | Samuel Nwankwo</title>',
+      )
+      .replace(
+        /<meta name="description" content=".*?" \/>/,
+        '<meta name="description" content="Case study: a secure role-based genealogy collaboration platform with tree-level sharing, admin-safe access management, and data integrity protections." />',
+      )
+      .replace(
+        /<meta property="og:title" content=".*?" \/>/,
+        '<meta property="og:title" content="Private Genealogy Web App Case Study | Samuel Nwankwo" />',
+      )
+      .replace(
+        /<meta property="og:description" content=".*?" \/>/,
+        '<meta property="og:description" content="Case study: a secure role-based genealogy collaboration platform with tree-level sharing, admin-safe access management, and data integrity protections." />',
+      )
+      .replace(
+        /<meta property="og:image" content=".*?" \/>/,
+        `<meta property="og:image" content="${imageUrl}" />`,
+      )
+      .replace(
+        /<meta name="twitter:title" content=".*?" \/>/,
+        '<meta name="twitter:title" content="Private Genealogy Web App Case Study | Samuel Nwankwo" />',
+      )
+      .replace(
+        /<meta name="twitter:description" content=".*?" \/>/,
+        '<meta name="twitter:description" content="Case study: a secure role-based genealogy collaboration platform with tree-level sharing, admin-safe access management, and data integrity protections." />',
+      )
+      .replace(
+        /<meta name="twitter:image" content=".*?" \/>/,
+        `<meta name="twitter:image" content="${imageUrl}" />`,
+      )
+
+    if (!caseStudyHtml.includes('rel="canonical"')) {
+      caseStudyHtml = caseStudyHtml.replace(
+        '</head>',
+        `  <link rel="canonical" href="${canonicalUrl}" />\n  </head>`,
+      )
+    }
+
+    await fs.writeFile(path.join(caseStudyDir, 'index.html'), caseStudyHtml, 'utf8')
+    console.log(
+      '[seo] Pre-rendered static HTML for /case-studies/family-tree-platform in dist output',
+    )
+  }
+}

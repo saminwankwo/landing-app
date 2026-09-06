@@ -49,6 +49,13 @@ function Home() {
     }
 
     const formDataObj = new FormData(form)
+
+    // Honeypot check to silently drop bot spam
+    if (formDataObj.get('_gotcha')) {
+      setFormSubmitted(true)
+      return
+    }
+
     const email = formDataObj.get('email')
 
     if (submitBtnRef.current) {
@@ -986,6 +993,13 @@ function Home() {
                   onSubmit={handleSubmit}
                   noValidate
                 >
+                  <input
+                    type="text"
+                    name="_gotcha"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    style={{ display: 'none' }}
+                  />
                   <div className="form-group">
                     <label htmlFor="name">Name *</label>
                     <input

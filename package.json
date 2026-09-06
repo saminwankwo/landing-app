@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-seo-files.mjs && vite build",
+    "build": "vite build && node scripts/generate-seo-files.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "echo \"No test suite configured yet\" && exit 0"
