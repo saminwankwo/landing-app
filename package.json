@@ -1,13 +1,17 @@
 {
   "name": "samuel-nwankwo-landing-page",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "node scripts/generate-seo-files.mjs && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "echo \"No test suite configured yet\" && exit 0"
   },
   "dependencies": {
     "react": "^19.2.0",
