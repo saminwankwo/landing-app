@@ -728,7 +728,7 @@ function Home() {
                 <div className="testimonial-card__avatar">JA</div>
                 <div>
                   <strong>James A.</strong>
-                  <small>Founder, FinTech Startup</small>
+                  <small>Founder, VendoHub</small>
                 </div>
               </div>
             </article>
@@ -746,8 +746,8 @@ function Home() {
               <div className="testimonial-card__author">
                 <div className="testimonial-card__avatar">MO</div>
                 <div>
-                  <strong>Michelle O.</strong>
-                  <small>CEO, HealthTech Company</small>
+                  <strong>Ikechukwu O.</strong>
+                  <small>CEO, GodgraceLab</small>
                 </div>
               </div>
             </article>
@@ -766,7 +766,7 @@ function Home() {
                 <div className="testimonial-card__avatar">TK</div>
                 <div>
                   <strong>Tobi K.</strong>
-                  <small>CTO, Logistics Platform</small>
+                  <small>CTO, KID Platform</small>
                 </div>
               </div>
             </article>
