@@ -54,7 +54,13 @@ export function injectGoogleTagManager(gtmId) {
 }
 
 export function injectGoogleAnalytics(ga4Id, adsId) {
-  if (!ga4Id || window.__sn_ga_injected) return
+  // Skip placeholder IDs (G-XXXXXXXXXX, GTM-XXXXXXX) to avoid 400s + CSP spam
+  const isPlaceholder = (id) => !id || /^(G-|GTM-|AW-)?X+$/i.test(id) || /^(G-|GTM-|AW-)?0+$/i.test(id)
+  if (!ga4Id || isPlaceholder(ga4Id)) {
+    // Still allow Ads ID alone if GA4 is placeholder
+    if (!adsId || isPlaceholder(adsId)) return
+  }
+  if (window.__sn_ga_injected) return
   window.__sn_ga_injected = true
 
   try {
@@ -184,6 +190,8 @@ export function injectMicrosoftClarity(projectId) {
   if (
     !projectId ||
     projectId === 'CLARITY_PROJECT_ID' ||
+    projectId === 'XXXXXXXXXX' ||
+    /^(X+|test|placeholder)$/i.test(projectId) ||
     window.__sn_clarity_injected
   )
     return
