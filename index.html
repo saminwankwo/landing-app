@@ -19,8 +19,9 @@
         style-src 'self' 'unsafe-inline' https://assets.calendly.com https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com data:;
         img-src 'self' data: https: blob:;
-        connect-src 'self' https://formspree.io https://*.google-analytics.com https://analytics.google.com https://analytics.tiktok.com https://*.clarity.ms https://clarity.ms https://region1.google-analytics.com https://stats.g.doubleclick.net;
-        frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com https://td.doubleclick.net;
+        connect-src 'self' https://formspree.io https://*.google-analytics.com https://analytics.google.com https://analytics.tiktok.com https://*.tiktok.com https://*.bytedance.com https://*.clarity.ms https://clarity.ms https://region1.google-analytics.com https://stats.g.doubleclick.net;
+        frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com https://td.doubleclick.net https://www.tiktok.com https://ads.tiktok.com https://*.tiktok.com https://*.bytedance.com;
+        frame-ancestors 'self' https://www.tiktok.com https://ads.tiktok.com https://*.tiktok.com https://*.bytedance.com https://calendly.com https://*.calendly.com;
         media-src 'self' https: blob: data:;
         manifest-src 'self';
         worker-src 'self' blob:;
@@ -34,10 +35,24 @@
       (function () {
         try {
           if (window.top !== window.self) {
+            // Allow TikTok Events Manager Test Events preview and other trusted embeds
+            // TikTok's Test Events loads your site in an iframe from tiktok.com / bytedance.com
+            // If we bust that frame, TikTok shows "can't find events" even when pixel fires
+            var ref = document.referrer || '';
+            var topHost = '';
+            try { topHost = window.top.location.hostname || ''; } catch (e) { /* cross-origin */ }
+            var isTikTokFrame = /tiktok\.com|tiktokglobalshop\.com|bytedance\.com|musical\.ly/i.test(ref + ' ' + topHost);
+            var isCalendly = /calendly\.com/i.test(ref + ' ' + topHost);
+            if (isTikTokFrame || isCalendly) return;
             document.documentElement.style.display = 'none';
             window.top.location.replace(window.self.location.href);
           }
         } catch (_) {
+          // On cross-origin error, check referrer only
+          try {
+            var r = document.referrer || '';
+            if (/tiktok\.com|bytedance\.com|calendly\.com/i.test(r)) return;
+          } catch (e2) {}
           document.documentElement.style.display = 'none';
         }
       })();

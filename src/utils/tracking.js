@@ -14,9 +14,14 @@ export async function hashString(string) {
 }
 
 export function trackTikTokEvent(eventName, properties = {}) {
-  if (!window?.ttq) return
+  if (!window?.ttq) {
+    try { console.warn('[TikTok] ttq not ready for', eventName) } catch {}
+    return
+  }
   try {
-    window.ttq.track(eventName, {
+    // Fire as standard + custom to ensure TikTok captures it even if one name is filtered
+    // TikTok standard lead events: Contact, SubmitForm, Lead — we fire all that apply
+    const payload = {
       contents: [
         {
           content_id: properties.content_id || 'landing_page',
@@ -26,7 +31,17 @@ export function trackTikTokEvent(eventName, properties = {}) {
       ],
       value: typeof properties.value === 'number' ? properties.value : 0,
       currency: properties.currency || 'USD',
-    })
+    }
+    window.ttq.track(eventName, payload)
+    // For form submissions, also fire canonical TikTok lead events so dashboard shows them
+    if (eventName === 'Lead') {
+      try { window.ttq.track('SubmitForm', payload) } catch {}
+      try { window.ttq.track('Contact', payload) } catch {}
+    }
+    if (eventName === 'ViewContent') {
+      // ViewContent is standard — also log for debug
+      try { if (window.ttq.debug) window.ttq.debug(true) } catch {}
+    }
   } catch {
     /* tracking must never break user flow */
   }
