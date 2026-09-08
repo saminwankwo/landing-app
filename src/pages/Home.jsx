@@ -518,64 +518,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="section packages">
-        <div className="container">
-          <div className="section-header fade-up">
-            <p className="section-eyebrow">Investment & Packages</p>
-            <h2 className="section-title">Transparent Engagement Options</h2>
-            <p className="section-desc">
-              Fixed-scope packages designed for predictable timelines, clear budgets, and high business ROI.
-            </p>
-          </div>
-          <div className="packages__grid">
-            <div className="package-card fade-up" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'flex', flexDirection: 'column' }}>
-              <div className="package-card__badge" style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', marginBottom: 'var(--sp-2)' }}>RAPID SHIP</div>
-              <h3 style={{ fontSize: '1.4rem', marginBottom: 'var(--sp-2)' }}>MVP & Prototype</h3>
-              <p style={{ color: 'var(--text-200)', fontSize: '0.92rem', marginBottom: 'var(--sp-4)' }}>Turn your product idea into a working, investor-ready web app in 3–4 weeks.</p>
-              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-100)', marginBottom: 'var(--sp-6)' }}>From $1,000 <span style={{ fontSize: '0.9rem', fontWeight: '400', color: 'var(--text-300)' }}>/ project</span></div>
-              <ul className="check-list" style={{ marginBottom: 'var(--sp-6)', flex: 1 }}>
-                <li>Core feature implementation</li>
-                <li>Responsive React UI</li>
-                <li>Node.js / Laravel backend API</li>
-                <li>Database setup & authentication</li>
-                <li>Production hosting deployment</li>
-              </ul>
-              <a href={calendlyUrl} className="btn btn--ghost btn--full calendly-trigger" onClick={handleCalendlyClick}>Book Discovery Call</a>
-            </div>
-
-            <div className="package-card package-card--featured fade-up" style={{ background: 'var(--bg-card)', border: '2px solid var(--primary)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-              <div className="package-card__popular" style={{ position: 'absolute', top: '-14px', right: '24px', background: 'var(--primary)', color: '#0d111a', fontWeight: '700', fontSize: '0.75rem', padding: '4px 12px', borderRadius: '12px', textTransform: 'uppercase' }}>Most Popular</div>
-              <div className="package-card__badge" style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', marginBottom: 'var(--sp-2)' }}>SCALABLE PLATFORM</div>
-              <h3 style={{ fontSize: '1.4rem', marginBottom: 'var(--sp-2)' }}>Full SaaS & Application</h3>
-              <p style={{ color: 'var(--text-200)', fontSize: '0.92rem', marginBottom: 'var(--sp-4)' }}>Complete end-to-end custom application with complex workflows, roles & billing.</p>
-              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-100)', marginBottom: 'var(--sp-6)' }}>From $2,500 <span style={{ fontSize: '0.9rem', fontWeight: '400', color: 'var(--text-300)' }}>/ project</span></div>
-              <ul className="check-list" style={{ marginBottom: 'var(--sp-6)', flex: 1 }}>
-                <li>Everything in MVP package</li>
-                <li>Multi-role access control & permissions</li>
-                <li>Payment gateway integration</li>
-                <li>Automated analytics & reporting dashboard</li>
-                <li>30-day post-launch warranty & support</li>
-              </ul>
-              <a href={calendlyUrl} className="btn btn--primary btn--full calendly-trigger" onClick={handleCalendlyClick}>Start Project Consultation</a>
-            </div>
-
-            <div className="package-card fade-up" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'var(--sp-8)', display: 'flex', flexDirection: 'column' }}>
-              <div className="package-card__badge" style={{ color: 'var(--primary)', fontWeight: '600', fontSize: '0.85rem', marginBottom: 'var(--sp-2)' }}>ENTERPRISE & BACKEND</div>
-              <h3 style={{ fontSize: '1.4rem', marginBottom: 'var(--sp-2)' }}>API & Architecture Refactoring</h3>
-              <p style={{ color: 'var(--text-200)', fontSize: '0.92rem', marginBottom: 'var(--sp-4)' }}>Optimize slow databases, fix system bottlenecks, or build secure REST APIs.</p>
-              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-100)', marginBottom: 'var(--sp-6)' }}>Custom Scope <span style={{ fontSize: '0.9rem', fontWeight: '400', color: 'var(--text-300)' }}>/ retainer</span></div>
-              <ul className="check-list" style={{ marginBottom: 'var(--sp-6)', flex: 1 }}>
-                <li>Backend performance audit</li>
-                <li>RESTful API design & integration</li>
-                <li>Database indexing & query optimization</li>
-                <li>CI/CD pipeline & automated tests</li>
-                <li>Ongoing technical advisory</li>
-              </ul>
-              <a href="https://wa.me/+2349020927884?text=Hi%20Samuel%20%E2%80%94%20I'm%20interested%20in%20custom%20API%2Farchitecture%20services." target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--full">Discuss Requirements</a>
-            </div>
-          </div>
-        </div>
-      </section>
+    
 
       <section className="section more-projects">
         <div className="container">
