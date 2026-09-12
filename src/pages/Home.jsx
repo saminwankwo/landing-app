@@ -984,7 +984,7 @@ function Home() {
                   ✉️ nwankwosami@gmail.com
                 </a>
                 <a
-                  href="https://saminwankwo-github-io.vercel.app/"
+                  href="https://saminwankwo.dev/"
                   className="contact__link"
                   target="_blank"
                   rel="noopener noreferrer"
