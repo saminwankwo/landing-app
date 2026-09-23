@@ -134,6 +134,9 @@ h1, h2, h3, h4 {
   color: var(--primary);
   margin-bottom: var(--sp-3);
 }
+.section-eyebrow--light {
+  color: rgba(255, 255, 255, 0.6);
+}
 .section-title {
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 700;
@@ -1204,6 +1207,58 @@ h1, h2, h3, h4 {
   text-align: center;
 }
 
+/* Inline field validation (moved out of JSX) */
+.form-error {
+  display: block;
+  margin-top: var(--sp-2);
+  font-size: 0.8rem;
+  color: hsl(0, 72%, 60%);
+  line-height: 1.4;
+}
+.form-group input[aria-invalid='true'],
+.form-group textarea[aria-invalid='true'],
+.form-group select[aria-invalid='true'] {
+  border-color: hsl(0, 72%, 60%);
+}
+
+/* Dismissible inline error card (replaces native alert()) */
+.form-error-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-4);
+  background: hsla(0, 72%, 55%, 0.1);
+  border: 1px solid hsla(0, 72%, 60%, 0.45);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  color: var(--text-100);
+  line-height: 1.5;
+}
+.form-error-summary p { margin: 0; }
+.form-error-summary__dismiss {
+  margin-top: var(--sp-2);
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.form-error-summary__dismiss:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* CRM sync status line inside the success card */
+.form-success__crm {
+  font-size: 0.85rem;
+  color: var(--text-300);
+  margin-bottom: var(--sp-2);
+}
+
 /* Form Success State */
 .form-success {
   background: var(--bg-card);
@@ -1326,6 +1381,9 @@ h1, h2, h3, h4 {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: var(--sp-6);
 }
+.lead-magnet {
+  padding-bottom: 0;
+}
 .lead-magnet__card {
   background: linear-gradient(135deg, var(--bg-card), var(--bg-raised));
   border: 1px solid var(--border-accent);
@@ -1344,6 +1402,110 @@ h1, h2, h3, h4 {
   .package-card {
     padding: var(--sp-5) !important;
   }
+}
+
+/* Lead magnet copy (moved out of inline style props) */
+.lead-magnet__eyebrow {
+  background: hsla(172, 65%, 48%, 0.15);
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.lead-magnet__title {
+  font-size: 1.6rem;
+  margin-top: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+.lead-magnet__desc {
+  color: var(--text-200);
+  font-size: 0.95rem;
+}
+.lead-magnet__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.lead-magnet__actions .btn { justify-content: center; }
+.lead-magnet__note {
+  font-size: 0.8rem;
+  color: var(--text-300);
+  text-align: center;
+}
+
+/* WhatsApp CTA (gradient moved out of inline style props) */
+.btn--whatsapp {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.btn--whatsapp:hover {
+  box-shadow: 0 8px 28px rgba(37, 211, 102, 0.38);
+  transform: translateY(-2px);
+}
+.btn--whatsapp:focus-visible {
+  outline: 2px solid #25d366;
+  outline-offset: 3px;
+}
+
+/* Hero guarantees row */
+.hero__guarantees {
+  margin-top: var(--sp-4);
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--text-200);
+}
+/* Stack badges on very narrow viewports so they never overlap */
+@media (max-width: 480px) {
+  .hero__guarantees {
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+}
+.hero__pills { margin-top: var(--sp-5); }
+
+/* Footer "Cookie settings" control (Issue 28) */
+.footer__nav-link {
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text-300);
+  cursor: pointer;
+}
+.footer__nav-link:hover { color: var(--primary); }
+.footer__nav-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Skip-to-content link (a11y) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--primary);
+  color: #fff;
+  border-radius: 0 0 var(--radius-md) 0;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+  top: 0;
 }
 
 /* =============================================================

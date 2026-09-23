@@ -1,11 +1,16 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { setSeo } from '../seo'
+import { captureUTM, storeClickId } from '../utils/tracking'
 
 function NotFound() {
   const pageRootRef = useRef(null)
 
   useEffect(() => {
+    // Keep attribution when a mistyped/pasted UTM link lands on the 404
+    captureUTM()
+    storeClickId()
+
     setSeo({
       title: 'Page Not Found | Samuel Nwankwo',
       description:

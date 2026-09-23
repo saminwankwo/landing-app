@@ -13,11 +13,15 @@ export default function PrivacyPreferences() {
 
   useEffect(() => {
     const existing = getStoredConsent()
-    // Pixel is now loaded unconditionally in index.html + main.jsx with holdConsent,
-    // but we still need to upgrade to granted/revoked if user already made a choice.
     if (existing?.value === 'accepted' || existing?.value === 'declined') {
       applyConsent(existing.value)
     }
+
+    // Re-open the banner on demand so users can exercise GDPR's "right to
+    // change consent at any time" after the initial dismissal (Issue 28).
+    const open = () => setVisible(true)
+    window.addEventListener('sn:open-privacy', open)
+    return () => window.removeEventListener('sn:open-privacy', open)
   }, [])
 
   if (!visible) return null

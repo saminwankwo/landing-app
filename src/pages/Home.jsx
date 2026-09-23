@@ -2,15 +2,45 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { setSeo } from '../seo'
 import {
+  appendUTMToUrl,
+  buildSourceFromUTM,
+  buildWhatsAppLink,
+  captureUTM,
+  flushFbQueue,
   getCalendlyUrl,
   getFormspreeEndpoint,
+  getUTM,
   identifyTikTokUser,
+  postToLeadTracker,
+  storeClickId,
+  track,
   trackTikTokEvent,
 } from '../utils/tracking'
+
+/** Minimum gap between submissions — mirrors the Lead Tracker's 60s dedup. */
+const SUBMIT_COOLDOWN_MS = 30_000
+const LAST_SUBMIT_KEY = 'sn_last_form_submit'
+
+/** Basic client-side checks with inline, screen-reader-friendly messages. */
+function validateFields({ name, email, message, budget }) {
+  const errors = {}
+  if (!name || name.trim().length < 2) errors.name = 'Please enter your full name (2+ characters).'
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    errors.email = 'Please enter a valid email address.'
+  }
+  if (!message || message.trim().length < 10) {
+    errors.message = 'Please describe your project in at least 10 characters.'
+  }
+  if (!budget) errors.budget = 'Please select a budget range.'
+  return errors
+}
 
 function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formSubmitted, setFormSubmitted] = useState(false)
+  const [leadTrackerStatus, setLeadTrackerStatus] = useState(null)
+  const [inlineError, setInlineError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,20 +52,23 @@ function Home() {
   const pageRootRef = useRef(null)
   const formRef = useRef(null)
   const submitBtnRef = useRef(null)
-  const calendlyUrl = getCalendlyUrl()
+  const calendlyUrl = appendUTMToUrl(getCalendlyUrl())
   const formspreeEndpoint = getFormspreeEndpoint()
 
   const handleCalendlyClick = (e) => {
     e.preventDefault()
-    trackTikTokEvent('ClickButton', {
-      content_name: 'Calendly Booking Click',
-    })
+    track('ClickButton', { content_name: 'Calendly Booking Click', ...getUTM() })
 
+    const url = appendUTMToUrl(getCalendlyUrl())
     if (window.Calendly) {
-      window.Calendly.initPopupWidget({ url: calendlyUrl })
+      window.Calendly.initPopupWidget({ url })
     } else {
-      window.open(calendlyUrl, '_blank', 'noopener,noreferrer')
+      window.open(url, '_blank', 'noopener,noreferrer')
     }
+  }
+
+  const handleWhatsAppClick = (location) => {
+    track('Contact', { content_name: 'WhatsApp Click', location, ...getUTM() })
   }
 
   const handleSubmit = async (e) => {
@@ -43,10 +76,7 @@ function Home() {
     const form = formRef.current
     if (!form) return
 
-    if (!form.checkValidity()) {
-      form.reportValidity()
-      return
-    }
+    setInlineError('')
 
     const formDataObj = new FormData(form)
 
@@ -56,7 +86,37 @@ function Home() {
       return
     }
 
-    const email = formDataObj.get('email')
+    const values = {
+      name: String(formDataObj.get('name') || ''),
+      email: String(formDataObj.get('email') || ''),
+      message: String(formDataObj.get('message') || ''),
+      budget: String(formDataObj.get('budget') || ''),
+    }
+
+    // Inline validation before any network call (Issue 19)
+    const errors = validateFields(values)
+    setFieldErrors(errors)
+    if (Object.keys(errors).length > 0) {
+      const firstInvalid = form.querySelector(
+        `[name="${Object.keys(errors)[0]}"]`,
+      )
+      firstInvalid?.focus()
+      return
+    }
+
+    // Client-side cooldown — blocks double-clicks and naive bots (Issue 13)
+    try {
+      const last = Number(window.localStorage.getItem(LAST_SUBMIT_KEY) || 0)
+      if (last && Date.now() - last < SUBMIT_COOLDOWN_MS) {
+        const waitSec = Math.ceil((SUBMIT_COOLDOWN_MS - (Date.now() - last)) / 1000)
+        setInlineError(
+          `Please wait ${waitSec}s before sending another message — this prevents duplicate submissions.`,
+        )
+        return
+      }
+    } catch {
+      /* storage unavailable — skip cooldown */
+    }
 
     if (submitBtnRef.current) {
       submitBtnRef.current.disabled = true
@@ -64,24 +124,66 @@ function Home() {
     }
 
     try {
-      if (email) {
-        await identifyTikTokUser(email)
+      if (values.email) {
+        await identifyTikTokUser(values.email)
       }
 
-      const response = await fetch(formspreeEndpoint, {
+      const utm = getUTM()
+      const trackerPayload = {
+        name: values.name.trim(),
+        email: values.email.trim(),
+        company: String(formDataObj.get('company') || '').trim(),
+        businessName: String(formDataObj.get('company') || '').trim(),
+        message: values.message.trim(),
+        source: buildSourceFromUTM(utm),
+        medium: utm.utm_medium || '',
+        campaign: utm.utm_campaign || '',
+        adCreative: utm.utm_content || '',
+        pageUrl: window.location.href,
+        referrer: document.referrer || '',
+        location: 'ads_landing_contact_form',
+        submittedAt: new Date().toISOString(),
+        utm,
+      }
+
+      // Formspree (email fallback) + Lead Tracker (CRM) in parallel.
+      // Formspree remains authoritative — CRM failure must not lose the lead.
+      const formspreePromise = fetch(formspreeEndpoint, {
         method: 'POST',
         body: formDataObj,
-        headers: {
-          Accept: 'application/json',
-        },
+        headers: { Accept: 'application/json' },
       })
+      const trackerPromise = postToLeadTracker(trackerPayload)
+
+      const [response, trackerResult] = await Promise.all([
+        formspreePromise,
+        trackerPromise,
+      ])
+      setLeadTrackerStatus(trackerResult)
 
       if (response.ok) {
+        track('Lead', {
+          content_name: 'Contact Form Submission',
+          value: 0,
+          currency: 'USD',
+          utm_source: utm.utm_source,
+          utm_campaign: utm.utm_campaign,
+          fbclid: utm.fbclid,
+          gclid: utm.gclid,
+          ttclid: utm.ttclid,
+        })
         trackTikTokEvent('Lead', {
           content_name: 'Contact Form Submission',
           value: 0,
           currency: 'USD',
         })
+
+        try {
+          window.localStorage.setItem(LAST_SUBMIT_KEY, String(Date.now()))
+        } catch {
+          /* noop */
+        }
+
         setFormSubmitted(true)
         setFormData({
           name: '',
@@ -90,6 +192,9 @@ function Home() {
           message: '',
           budget: '',
         })
+        setFieldErrors({})
+        // Also clear the DOM (honeypot + autocomplete drift) — Issue 27
+        formRef.current?.reset()
       } else {
         let message = 'Submission failed'
         try {
@@ -104,7 +209,8 @@ function Home() {
       if (typeof console !== 'undefined') {
         console.error('Form submission error:', error)
       }
-      alert(
+      // Inline error state instead of blocking alert() — Issue 9
+      setInlineError(
         'Oops! There was a problem submitting your form. Please try again or email me directly at nwankwosami@gmail.com.',
       )
     } finally {
@@ -118,9 +224,33 @@ function Home() {
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    // Clear a field's error as soon as the user starts fixing it
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev }
+        delete next[name]
+        return next
+      })
+    }
+  }
+
+  const handleFieldBlur = (e) => {
+    const { name, value } = e.target
+    const errors = validateFields({ ...formData, [name]: value })
+    setFieldErrors((prev) => {
+      const next = { ...prev }
+      if (errors[name]) next[name] = errors[name]
+      else delete next[name]
+      return next
+    })
   }
 
   useEffect(() => {
+    // Capture attribution ASAP on every route mount (TRACKING_SETUP §4)
+    captureUTM()
+    storeClickId()
+    flushFbQueue()
+
     setSeo({
       title: 'Samuel Nwankwo · Full-Stack Developer & Software Engineer',
       description:
@@ -149,7 +279,6 @@ function Home() {
       content_name: document.title,
       content_type: 'product',
     })
-
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px',
@@ -262,20 +391,14 @@ function Home() {
             </p>
             <div className="hero__actions">
               <a
-                href="https://wa.me/+2349020927884?text=Hi%20Samuel%20%E2%80%94%20I'm%20interested%20in%20discussing%20a%20project."
+                href={buildWhatsAppLink(
+                  "Hi Samuel — I'm interested in discussing a project.",
+                  'hero_whatsapp',
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn"
-                style={{
-                  background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                  color: '#ffffff',
-                  border: 'none',
-                  fontWeight: '600',
-                  boxShadow: '0 4px 20px rgba(37, 211, 102, 0.25)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 'var(--sp-2)',
-                }}
+                className="btn btn--whatsapp"
+                onClick={() => handleWhatsAppClick('hero_whatsapp')}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.705 1.754zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
@@ -293,12 +416,12 @@ function Home() {
                 View Work →
               </a>
             </div>
-            <div className="hero__guarantees" style={{ marginTop: 'var(--sp-4)', display: 'flex', gap: 'var(--sp-4)', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--text-200)' }}>
+            <div className="hero__guarantees">
               <span>🔒 <strong>100% Code Ownership</strong></span>
               <span>⏱️ <strong>Milestone Payments</strong></span>
               <span>🛡️ <strong>30-Day Support Guarantee</strong></span>
             </div>
-            <ul className="hero__pills" aria-label="Expertise areas" style={{ marginTop: 'var(--sp-5)' }}>
+            <ul className="hero__pills" aria-label="Expertise areas">
               <li className="pill">6+ Years Experience</li>
               <li className="pill">Full-Stack Development</li>
               <li className="pill">Backend Architecture</li>
@@ -917,7 +1040,7 @@ function Home() {
         <div className="container">
           <div className="cta-banner__inner fade-up">
             <div className="cta-banner__glow"></div>
-            <p className="section-eyebrow" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            <p className="section-eyebrow section-eyebrow--light">
               Ready to build?
             </p>
             <h2 className="cta-banner__title">Have an Idea You Want to Build?</h2>
@@ -936,27 +1059,30 @@ function Home() {
         </div>
       </section>
 
-      <section className="section lead-magnet fade-up" style={{ paddingBottom: '0' }}>
+      <section className="section lead-magnet fade-up">
         <div className="container">
           <div className="lead-magnet__card">
             <div>
-              <span style={{ background: 'hsla(172, 65%, 48%, 0.15)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase' }}>Free Founder Resource</span>
-              <h3 style={{ fontSize: '1.6rem', marginTop: 'var(--sp-3)', marginBottom: 'var(--sp-2)' }}>10 Costly Architecture Mistakes Founders Make</h3>
-              <p style={{ color: 'var(--text-200)', fontSize: '0.95rem' }}>
+              <span className="lead-magnet__eyebrow">Free Founder Resource</span>
+              <h3 className="lead-magnet__title">10 Costly Architecture Mistakes Founders Make</h3>
+              <p className="lead-magnet__desc">
                 Planning a web application or SaaS? Avoid the technical traps that waste budget and slow down launch timelines.
               </p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)' }}>
+            <div className="lead-magnet__actions">
               <a
-                href="https://wa.me/+2349020927884?text=Hi%20Samuel%20%E2%80%94%20Please%20send%20me%20the%20Free%20Founder%20Architecture%20Guide."
+                href={buildWhatsAppLink(
+                  'Hi Samuel — Please send me the Free Founder Architecture Guide.',
+                  'lead_magnet_whatsapp',
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn--primary btn--lg"
-                style={{ justifyContent: 'center' }}
+                onClick={() => handleWhatsAppClick('lead_magnet_whatsapp')}
               >
                 📥 Get Free Guide via WhatsApp
               </a>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-300)', textAlign: 'center' }}>Instant PDF delivery · No spam</p>
+              <p className="lead-magnet__note">Instant PDF delivery · No spam</p>
             </div>
           </div>
         </div>
@@ -1028,10 +1154,24 @@ function Home() {
                     Thank you for reaching out. I&apos;ve received your project
                     details and will get back to you within 24 hours.
                   </p>
+                  <p
+                    className="form-success__text form-success__crm"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {leadTrackerStatus?.ok
+                      ? '✓ Lead saved to SN TECH CRM — expect a follow-up shortly.'
+                      : leadTrackerStatus?.skipped
+                        ? 'ℹ️ CRM integration not configured (no webhook URL set).'
+                        : '⚠️ CRM sync pending — your lead is backed up via email.'}
+                  </p>
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    onClick={() => setFormSubmitted(false)}
+                    onClick={() => {
+                      setFormSubmitted(false)
+                      setLeadTrackerStatus(null)
+                    }}
                   >
                     Send Another Message
                   </button>
@@ -1053,6 +1193,22 @@ function Home() {
                     autoComplete="off"
                     style={{ display: 'none' }}
                   />
+                  {inlineError ? (
+                    <div className="form-error-summary" role="alert">
+                      <span aria-hidden="true">⚠️</span>
+                      <div>
+                        <p>{inlineError}</p>
+                        <button
+                          type="button"
+                          className="form-error-summary__dismiss"
+                          onClick={() => setInlineError('')}
+                          aria-label="Dismiss error message"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="form-group">
                     <label htmlFor="name">Name *</label>
                     <input
@@ -1064,7 +1220,15 @@ function Home() {
                       autoComplete="name"
                       value={formData.name}
                       onChange={handleInputChange}
+                      onBlur={handleFieldBlur}
+                      aria-invalid={fieldErrors.name ? 'true' : undefined}
+                      aria-describedby={fieldErrors.name ? 'name-error' : undefined}
                     />
+                    {fieldErrors.name ? (
+                      <small id="name-error" className="form-error">
+                        {fieldErrors.name}
+                      </small>
+                    ) : null}
                   </div>
                   <div className="form-group">
                     <label htmlFor="email">Email *</label>
@@ -1077,7 +1241,15 @@ function Home() {
                       autoComplete="email"
                       value={formData.email}
                       onChange={handleInputChange}
+                      onBlur={handleFieldBlur}
+                      aria-invalid={fieldErrors.email ? 'true' : undefined}
+                      aria-describedby={fieldErrors.email ? 'email-error' : undefined}
                     />
+                    {fieldErrors.email ? (
+                      <small id="email-error" className="form-error">
+                        {fieldErrors.email}
+                      </small>
+                    ) : null}
                   </div>
                   <div className="form-group">
                     <label htmlFor="company">Company</label>
@@ -1101,7 +1273,15 @@ function Home() {
                       required
                       value={formData.message}
                       onChange={handleInputChange}
+                      onBlur={handleFieldBlur}
+                      aria-invalid={fieldErrors.message ? 'true' : undefined}
+                      aria-describedby={fieldErrors.message ? 'message-error' : undefined}
                     ></textarea>
+                    {fieldErrors.message ? (
+                      <small id="message-error" className="form-error">
+                        {fieldErrors.message}
+                      </small>
+                    ) : null}
                   </div>
                   <div className="form-group">
                     <label htmlFor="budget">Budget Range *</label>
@@ -1111,6 +1291,9 @@ function Home() {
                       required
                       value={formData.budget}
                       onChange={handleInputChange}
+                      onBlur={handleFieldBlur}
+                      aria-invalid={fieldErrors.budget ? 'true' : undefined}
+                      aria-describedby={fieldErrors.budget ? 'budget-error' : undefined}
                     >
                       <option value="" disabled>
                         Select your budget range
@@ -1121,6 +1304,11 @@ function Home() {
                       <option value="30k-plus">$30,000+</option>
                       <option value="not-sure">Not sure yet</option>
                     </select>
+                    {fieldErrors.budget ? (
+                      <small id="budget-error" className="form-error">
+                        {fieldErrors.budget}
+                      </small>
+                    ) : null}
                   </div>
                   <button
                     ref={submitBtnRef}
@@ -1153,6 +1341,13 @@ function Home() {
             <a href="#projects">Projects</a>
             <a href="#services">Services</a>
             <a href="#contact">Contact</a>
+            <button
+              type="button"
+              className="footer__nav-link"
+              onClick={() => window.dispatchEvent(new CustomEvent('sn:open-privacy'))}
+            >
+              Cookie settings
+            </button>
           </nav>
         </div>
         <div className="container footer__bottom">
