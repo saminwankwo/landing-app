@@ -79,14 +79,81 @@ export function injectGoogleAnalytics(ga4Id, adsId) {
     gtag('js', new Date())
 
     if (typeof window.gtag === 'function') {
+      // GDPR/ePrivacy: opt-IN only. Default to DENIED until the user accepts
+      // the banner; applyConsent('accepted') then sends a consent,update.
       window.gtag('consent', 'default', {
-        ad_storage: 'granted',
-        analytics_storage: 'granted',
-        ad_user_data: 'granted',
-        ad_personalization: 'granted',
+        ad_storage: 'denied',
+        analytics_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        wait_for_update: 500,
       })
       if (adsId) window.gtag('config', adsId)
       if (ga4Id && ga4Id !== adsId) window.gtag('config', ga4Id)
+    }
+  } catch {
+    /* noop */
+  }
+}
+
+/**
+ * Update Google Consent Mode v2 for the current choice.
+ * Called on BOTH accept and decline so an already-initialised `denied` default
+ * is upgraded (or re-confirmed) as soon as the user acts.
+ */
+export function updateGoogleConsent(consentValue) {
+  try {
+    if (typeof window.gtag !== 'function') return
+    const granted = consentValue === 'accepted'
+    const state = granted ? 'granted' : 'denied'
+    window.gtag('consent', 'update', {
+      ad_storage: state,
+      analytics_storage: state,
+      ad_user_data: state,
+      ad_personalization: state,
+    })
+  } catch {
+    /* noop */
+  }
+}
+
+/** Meta/Facebook Pixel — injected only after an explicit "Accept All". */
+export function injectMetaPixel(pixelId) {
+  if (!pixelId || isPlaceholderPixelId(pixelId) || window.__sn_meta_injected) return
+  if (document.getElementById('meta-pixel')) return
+  window.__sn_meta_injected = true
+
+  try {
+    const init = document.createElement('script')
+    init.id = 'meta-pixel'
+    init.innerHTML = [
+      '!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?',
+      'n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;',
+      'n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;',
+      't.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,',
+      'document,"script","https://connect.facebook.net/en_US/fbevents.js");',
+      `fbq("init", ${JSON.stringify(String(pixelId))});`,
+      'fbq("track", "PageView");',
+    ].join('')
+    document.head.appendChild(init)
+  } catch {
+    /* noop */
+  }
+}
+
+/** Rejects fake/placeholder IDs so a fresh clone never fires bad requests. */
+function isPlaceholderPixelId(id) {
+  return /^(X+|0+|1234567890123456|your[_-].*|<.*>)$/i.test(String(id).trim())
+}
+
+/** Grant/withdraw TikTok consent to mirror the banner choice. */
+export function setTikTokConsent(consentValue) {
+  try {
+    if (!window?.ttq) return
+    if (consentValue === 'accepted' && window.ttq.grantConsent) {
+      window.ttq.grantConsent()
+    } else if (window.ttq.revokeConsent) {
+      window.ttq.revokeConsent()
     }
   } catch {
     /* noop */
@@ -164,7 +231,11 @@ export function injectTikTokPixel(pixelId) {
           ttq.grantConsent()
         }
       } catch {
-        try { ttq.grantConsent() } catch {}
+        try {
+          ttq.grantConsent()
+        } catch {
+          /* noop — consent grant is best-effort */
+        }
       }
       ttq.page()
     })(window, document, 'ttq')
@@ -231,12 +302,19 @@ export function revokeAllTrackingConsent() {
   }
 }
 
+/**
+ * Apply the stored banner choice across every pixel.
+ * Order matters: consent,update is sent BEFORE pixels load so gtag sees the
+ * updated state rather than lingering on the `denied` default (Issue 8).
+ */
 export function applyConsent(consentValue) {
   const env = import.meta.env
+  const granted = consentValue === 'accepted'
 
-  if (consentValue === 'accepted') {
-    // Ensure TikTok pixel exists (it should already be loaded on page load via ensureTikTokPixelLoaded)
-    // then grant consent so it can fire
+  // 1. Google Consent Mode v2 update — runs for accept AND decline.
+  updateGoogleConsent(consentValue)
+
+  if (granted) {
     if (env.VITE_TIKTOK_PIXEL_ID) {
       injectTikTokPixel(env.VITE_TIKTOK_PIXEL_ID)
       grantTikTokConsent()
@@ -245,11 +323,15 @@ export function applyConsent(consentValue) {
     if (env.VITE_GA4_ID || env.VITE_GOOGLE_ADS_ID) {
       injectGoogleAnalytics(env.VITE_GA4_ID, env.VITE_GOOGLE_ADS_ID)
     }
-    if (env.VITE_CLARITY_PROJECT_ID)
+    if (env.VITE_META_PIXEL_ID) injectMetaPixel(env.VITE_META_PIXEL_ID)
+    if (env.VITE_CLARITY_PROJECT_ID) {
       injectMicrosoftClarity(env.VITE_CLARITY_PROJECT_ID)
-  } else if (consentValue === 'declined') {
-    // If TikTok pixel was already loaded (via initial page load), revoke it
+    }
+  } else {
+    // 2. Withdraw consent from anything already loaded, and make sure the
+    //    TikTok pixel exists first so it can actually receive the revoke.
     ensureTikTokPixelLoaded()
+    setTikTokConsent('declined')
     revokeAllTrackingConsent()
   }
 }

@@ -1,22 +1,35 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { setSeo } from '../seo'
-import { getCalendlyUrl } from '../utils/tracking'
+import {
+  appendUTMToUrl,
+  buildWhatsAppLink,
+  captureUTM,
+  getCalendlyUrl,
+  storeClickId,
+  track,
+} from '../utils/tracking'
 
 const WHATSAPP_LINK = 'https://wa.me/+2349020927884'
 const WHATSAPP_PREFILLED_MESSAGE =
   "Hi Samuel — I’m interested in building a [web app / internal tool / API]. Timeline: [X]. Budget range: [Y]. Can we discuss next steps?"
-const WHATSAPP_PREFILLED_LINK = `${WHATSAPP_LINK}?text=${encodeURIComponent(
+// Attribution-carrying variant — buildWhatsAppLink() appends the campaign block.
+const WHATSAPP_PREFILLED_LINK = buildWhatsAppLink(
+  WHATSAPP_PREFILLED_MESSAGE,
+  'case_study_whatsapp',
+)
+// Plain template shown to the reader as a copyable example.
+const WHATSAPP_TEMPLATE_LINK = `${WHATSAPP_LINK}?text=${encodeURIComponent(
   WHATSAPP_PREFILLED_MESSAGE,
 )}`
 
 function handleCalendlyClick(e) {
   e.preventDefault()
-  const calendlyUrl = getCalendlyUrl()
+  const url = appendUTMToUrl(getCalendlyUrl())
   if (window.Calendly) {
-    window.Calendly.initPopupWidget({ url: calendlyUrl })
+    window.Calendly.initPopupWidget({ url })
   } else {
-    window.open(calendlyUrl, '_blank', 'noopener,noreferrer')
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 }
 
@@ -40,6 +53,10 @@ function CaseStudy() {
   }
 
   useEffect(() => {
+    // Attribution must survive route changes too (TRACKING_SETUP §4 checklist)
+    captureUTM()
+    storeClickId()
+
     setSeo({
       title: 'Private Genealogy Web App Case Study | Samuel Nwankwo',
       description:
@@ -338,18 +355,8 @@ function CaseStudy() {
                   href={WHATSAPP_PREFILLED_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn--lg"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 'var(--sp-3)',
-                    background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                    color: '#ffffff',
-                    border: 'none',
-                    fontWeight: '600',
-                    boxShadow: '0 4px 20px rgba(37, 211, 102, 0.25)',
-                    transition: 'transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease)',
-                  }}
+                  className="btn btn--lg btn--whatsapp"
+                  onClick={() => track('Contact', { content_name: 'Case Study WhatsApp Click', location: 'case_study_whatsapp' })}
                 >
                   <svg
                     width="22"
@@ -379,6 +386,20 @@ function CaseStudy() {
                   {WHATSAPP_PREFILLED_MESSAGE}
                 </code>
               </pre>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-300)' }}>
+                Copy the template above, or tap the button to open WhatsApp with
+                your message (and this page&apos;s campaign attribution) prefilled.
+              </p>
+              <div style={{ marginTop: 'var(--sp-4)' }}>
+                <a
+                  href={WHATSAPP_TEMPLATE_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn--ghost"
+                >
+                  Open plain (no attribution) link
+                </a>
+              </div>
             </section>
 
             <section
@@ -395,6 +416,7 @@ function CaseStudy() {
                 className="btn btn--primary btn--lg"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => track('Contact', { content_name: 'Case Study WhatsApp Click', location: 'case_study_cta' })}
               >
                 Message on WhatsApp
               </a>

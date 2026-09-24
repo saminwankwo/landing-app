@@ -15,18 +15,18 @@
       http-equiv="Content-Security-Policy"
       content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' https://assets.calendly.com https://www.googletagmanager.com https://analytics.tiktok.com https://analytics-ipv6.tiktokw.us https://*.tiktokw.us https://*.tiktok.com https://www.clarity.ms https://clarity.ms https://static.cloudflareinsights.com https://*.cloudflareinsights.com https://googleads.g.doubleclick.net https://*.googletagmanager.com https://*.googleadservices.com https://www.google.com https://ad.doubleclick.net https://*.doubleclick.net;
+        script-src 'self' 'unsafe-inline' https://assets.calendly.com https://www.googletagmanager.com https://analytics.tiktok.com https://analytics-ipv6.tiktokw.us https://*.tiktokw.us https://*.tiktok.com https://www.clarity.ms https://clarity.ms https://static.cloudflareinsights.com https://*.cloudflareinsights.com https://googleads.g.doubleclick.net https://*.googletagmanager.com https://*.googleadservices.com https://www.google.com https://ad.doubleclick.net https://*.doubleclick.net https://connect.facebook.net;
         style-src 'self' 'unsafe-inline' https://assets.calendly.com https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com data:;
-        img-src 'self' data: https: blob:;
-        connect-src 'self' https://formspree.io https://*.google-analytics.com https://analytics.google.com https://analytics.tiktok.com https://analytics-ipv6.tiktokw.us https://*.tiktokw.us https://*.tiktok.com https://*.bytedance.com https://*.clarity.ms https://clarity.ms https://region1.google-analytics.com https://stats.g.doubleclick.net https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://*.doubleclick.net https://static.cloudflareinsights.com https://*.cloudflareinsights.com;
-        frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com https://td.doubleclick.net https://www.tiktok.com https://ads.tiktok.com https://*.tiktok.com https://*.bytedance.com;
+        img-src 'self' data: https: blob: https://www.facebook.com;
+        connect-src 'self' https://formspree.io https://*.google-analytics.com https://analytics.google.com https://analytics.tiktok.com https://analytics-ipv6.tiktokw.us https://*.tiktokw.us https://*.tiktok.com https://*.bytedance.com https://*.clarity.ms https://clarity.ms https://region1.google-analytics.com https://stats.g.doubleclick.net https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://*.doubleclick.net https://static.cloudflareinsights.com https://connect.facebook.net https://www.facebook.com;
+        frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com https://td.doubleclick.net https://www.tiktok.com https://ads.tiktok.com https://*.tiktok.com https://*.bytedance.com https://www.facebook.com;
         media-src 'self' https: blob: data:;
         manifest-src 'self';
         worker-src 'self' blob:;
         object-src 'none';
         base-uri 'self';
-        form-action 'self' https://formspree.io;
+        form-action 'self' https://formspree.io https://www.facebook.com;
       "
     />
 
@@ -57,15 +57,19 @@
       })();
     </script>
 
+    <!-- Static canonical/OG for non-JS crawlers (src/seo.js upserts these
+         client-side per-route; upsert finds the existing tags, no duplicates). -->
+    <link rel="canonical" href="https://ads.saminwankwo.dev/" />
     <meta property="og:title" content="Samuel Nwankwo · Custom Software Development" />
     <meta property="og:description" content="I build custom software that solves real business problems. Book a free consultation today." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/familytree.png" />
+    <meta property="og:url" content="https://ads.saminwankwo.dev/" />
+    <meta property="og:image" content="https://ads.saminwankwo.dev/familytree.png" />
     <meta property="og:site_name" content="Samuel Nwankwo" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Samuel Nwankwo · Custom Software Development" />
     <meta name="twitter:description" content="I build custom software that solves real business problems. Book a free consultation today." />
-    <meta name="twitter:image" content="/familytree.png" />
+    <meta name="twitter:image" content="https://ads.saminwankwo.dev/familytree.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -76,39 +80,20 @@
     <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet" />
     <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 
-    <!-- TikTok Pixel Code — TikTok scanner looks for literal sdkid string. Keep literal 'D8F0N1RC77UFK9KDTFB0' in ttq.load() -->
-    <script>
-      (function (w, d, t) {
-        if (w.__sn_tt_injected) return;
-        w.TiktokAnalyticsObject = t;
-        var ttq = (w[t] = w[t] || []);
-        ttq.methods = ['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie','holdConsent','revokeConsent','grantConsent'];
-        ttq.setAndDefer = function (t, e) { t[e] = function () { t.push([e].concat([].slice.call(arguments, 0))); }; };
-        for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
-        ttq.instance = function (t) { for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]); return e; };
-        ttq.load = function (e, n) {
-          var r = 'https://analytics.tiktok.com/i18n/pixel/events.js';
-          ttq._i = ttq._i || {}; ttq._i[e] = []; ttq._i[e]._u = r; ttq._t = ttq._t || {}; ttq._t[e] = +new Date(); ttq._o = ttq._o || {}; ttq._o[e] = n || {};
-          n = d.createElement('script'); n.type = 'text/javascript'; n.async = !0; n.src = r + '?sdkid=' + e + '&lib=' + t;
-          e = d.getElementsByTagName('script')[0]; e.parentNode.insertBefore(n, e);
-        };
-        // GDPR: grant by default so TikTok's verifier sees PageView even before banner click.
-        // If user explicitly declined, we revoke. This fixes "can't detect base code" while still respecting decline.
-        var consent = null;
-        try { var raw = localStorage.getItem('sn_cookie_consent_v1'); consent = raw ? JSON.parse(raw).value : null; } catch (e) {}
-        w.__sn_tt_injected = true;
-        ttq.load('D8F0N1RC77UFK9KDTFB0');
-        try {
-          if (consent === 'declined') ttq.revokeConsent();
-          else ttq.grantConsent();
-        } catch (e) {}
-        ttq.page();
-      })(window, document, 'ttq');
-    </script>
-    <!-- TikTok Pixel helper literal for scanners that regex search for sdkid param -->
-    <!-- tiktok-pixel-id: D8F0N1RC77UFK9KDTFB0 | sdkid=D8F0N1RC77UFK9KDTFB0 -->
-    <!-- Direct script tag with literal sdkid for ultra-strict scanners (redundant with ttq.load above, but makes base code 100% detectable even without JS execution) -->
-    <script async src="https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=D8F0N1RC77UFK9KDTFB0&lib=ttq"></script>
+    <!--
+      TikTok Pixel is intentionally NOT inlined here.
+
+      It is injected once, env-driven, from src/main.jsx via
+      ensureTikTokPixelLoaded() -> injectTikTokPixel(import.meta.env.VITE_TIKTOK_PIXEL_ID).
+      Vite inlines the env value into the built bundle, so TikTok's
+      regex-based base-code scanner still finds the literal pixel ID in
+      view-source of the deployed build, while dev/staging/prod can each use a
+      different ID (and a declined consent choice is actually respected).
+
+      This removes the previous triple injection (inline script + literal
+      <script src> tag + JS path) that double-fired PageView and ignored the
+      consent banner. See CODE_REVIEW_MAIN.md Issues 1 and 17.
+    -->
   </head>
   <body>
     <div id="root"></div>
