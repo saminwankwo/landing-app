@@ -38,7 +38,7 @@ function validateFields({ name, email, message, budget }) {
 function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formSubmitted, setFormSubmitted] = useState(false)
-  const [leadTrackerStatus, setLeadTrackerStatus] = useState(null)
+  const [setLeadTrackerStatus] = useState(null)
   const [inlineError, setInlineError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [formData, setFormData] = useState({
@@ -455,7 +455,7 @@ function Home() {
         <div className="container">
           <div className="stats-bar fade-up">
             <div className="stats-bar__item">
-              <span className="stats-bar__num">6+</span>
+              <span className="stats-bar__num">7+</span>
               <span className="stats-bar__label">Years Experience</span>
             </div>
             <div className="stats-bar__divider"></div>
@@ -1008,7 +1008,7 @@ function Home() {
               <p className="section-eyebrow">About Me</p>
               <h2 className="section-title">Samuel Nwankwo</h2>
               <p className="about__bio">
-                I&apos;m a Full-Stack Developer with 6+ years of experience
+                I&apos;m a Full-Stack Developer with 7+ years of experience
                 building software that drives real business results. From
                 early-stage startups to established companies, I&apos;ve helped
                 teams ship complex systems that actually work.
@@ -1153,17 +1153,6 @@ function Home() {
                   <p className="form-success__text">
                     Thank you for reaching out. I&apos;ve received your project
                     details and will get back to you within 24 hours.
-                  </p>
-                  <p
-                    className="form-success__text form-success__crm"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    {leadTrackerStatus?.ok
-                      ? '✓ Lead saved to SN TECH CRM — expect a follow-up shortly.'
-                      : leadTrackerStatus?.skipped
-                        ? 'ℹ️ CRM integration not configured (no webhook URL set).'
-                        : '⚠️ CRM sync pending — your lead is backed up via email.'}
                   </p>
                   <button
                     type="button"
